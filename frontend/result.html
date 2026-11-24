@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Performance Report & Analytics - EduQuest</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background-color: var(--bg-color);">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="portal-brand">
+      <span class="portal-logo-badge" style="background-color: var(--btn-accent);">ANALYTICS</span>
+      <div>
+        <div class="portal-title">EduQuest Performance Analytics</div>
+        <div class="portal-subtitle">Learning Trajectory & Diagnostic Evaluation</div>
+      </div>
+    </div>
+    <div class="header-user-info no-print" style="gap: 0.75rem; flex-wrap: wrap;">
+      <div id="attempt-switcher-container" style="display: none; align-items: center; gap: 0.4rem;">
+        <label for="attempt-select" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Attempt:</label>
+        <select id="attempt-select" class="form-select" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; min-width: 140px;" onchange="switchAttempt(this.value)"></select>
+      </div>
+      <button class="btn btn-accent btn-sm" id="btn-header-retake" onclick="retakeCurrentExam()">
+        🔄 Retake Quiz
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">&larr; Dashboard</a>
+      <button class="btn btn-secondary btn-sm" onclick="window.print()">Print Report</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Exam & Student Meta Banner -->
+    <div class="card" style="margin-bottom: 1.5rem; box-shadow: var(--shadow-card); border-radius: var(--radius-md); background: #FFFFFF;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+            <span class="badge" id="result-subject-badge" style="background: var(--bg-cream-tint); color: var(--text-primary); font-weight: 600; border: 1px solid var(--border-color);">Subject</span>
+            <span class="badge badge-warning" id="result-attempt-badge" style="display: none;">Attempt #1</span>
+          </div>
+          <h1 id="result-exam-title" style="font-size: 1.55rem; margin-bottom: 0.25rem; color: var(--text-primary);">Quiz Evaluation Report</h1>
+          <p id="result-exam-meta" style="color: var(--text-secondary);">
+            Learner: <strong id="res-student-name">...</strong> | Learner ID: <strong id="res-student-enrollment">...</strong>
+          </p>
+        </div>
+        <div style="text-align: right;">
+          <div id="result-status-badge" class="badge badge-success" style="font-size: 0.88rem; padding: 0.4rem 0.85rem;">
+            COMPLETED
+          </div>
+          <p style="font-size: 0.8rem; margin-top: 0.4rem; color: var(--text-secondary);" id="res-completed-time">-</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. COMPARATIVE PERFORMANCE ANALYSIS (OLD VS NEW EXAM) -->
+    <section id="comparison-section" style="display: none; margin-bottom: 2rem;">
+      <div class="comparison-banner">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span class="badge" style="background-color: var(--btn-accent); color: #FFFFFF; font-weight: 700; font-size: 0.75rem;">
+                COMPARATIVE GROWTH
+              </span>
+              <h2 style="font-size: 1.35rem; color: var(--text-primary); margin: 0;" id="comp-header-title">
+                Attempt Comparison: New Attempt vs. Old Attempt
+              </h2>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;" id="comp-header-sub">
+              Side-by-side progression analysis between consecutive attempts of this quiz.
+            </p>
+          </div>
+          <div id="comp-overall-badge">
+            <span class="badge badge-success" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Mastery Analyzed</span>
+          </div>
+        </div>
+
+        <!-- Growth Narrative Banner -->
+        <div style="margin-top: 1rem; padding: 1.15rem; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; align-items: flex-start; gap: 0.85rem; box-shadow: var(--shadow-subtle);">
+          <div style="font-size: 1.6rem; line-height: 1;">🚀</div>
+          <div>
+            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em;">
+              Growth Diagnostic Statement
+            </div>
+            <div id="comp-growth-narrative" style="font-size: 0.95rem; color: var(--text-primary); margin-top: 0.25rem; line-height: 1.5; font-weight: 500;">
+              Calculating comparative trajectory...
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 KPI Comparison Cards -->
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <div class="comparison-metric-title">Score Evolution</div>
+            <div class="comparison-values-row">
+              <span class="comp-old-val" id="comp-score-old">0/0</span>
+              <span class="comp-new-val" id="comp-score-new">0/0</span>
+            </div>
+            <div id="comp-score-delta"></div>
+          </div>
+
+          <div class="comparison-card">
+            <div class="comparison-metric-title">Percentage Shift</div>
+            <div class="comparison-values-row">
+              <span class="comp-old-val" id="comp-pct-old">0%</span>
+              <span class="comp-new-val" id="comp-pct-new">0%</span>
+            </div>
+            <div id="comp-pct-delta"></div>
+          </div>
+
+          <div class="comparison-card">
+            <div class="comparison-metric-title">Accuracy Rate</div>
+            <div class="comparison-values-row">
+              <span class="comp-old-val" id="comp-acc-old">0%</span>
+              <span class="comp-new-val" id="comp-acc-new">0%</span>
+            </div>
+            <div id="comp-acc-delta"></div>
+          </div>
+
+          <div class="comparison-card">
+            <div class="comparison-metric-title">Duration / Speed</div>
+            <div class="comparison-values-row">
+              <span class="comp-old-val" id="comp-time-old">--</span>
+              <span class="comp-new-val" id="comp-time-new">--</span>
+            </div>
+            <div id="comp-time-sub" style="font-size: 0.8rem; color: var(--text-secondary);">Total time spent</div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Topic Comparison Bar Chart -->
+        <div style="margin-top: 1.5rem; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h4 style="font-size: 0.95rem; color: var(--text-primary); margin: 0;">
+              📊 Topic Mastery Comparison: Old Attempt vs. New Attempt
+            </h4>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">
+              <span style="display: inline-block; width: 12px; height: 12px; background: #D4C7BA; border-radius: 2px; margin-right: 4px; vertical-align: middle;"></span> Old Attempt
+              <span style="display: inline-block; width: 12px; height: 12px; background: #C2672B; border-radius: 2px; margin-left: 12px; margin-right: 4px; vertical-align: middle;"></span> New Attempt
+            </div>
+          </div>
+          <div class="chart-container" style="height: 260px;">
+            <canvas id="topicComparisonChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Question-by-Question Comparative Matrix Table -->
+        <div style="margin-top: 1.5rem; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h4 style="font-size: 0.95rem; color: var(--text-primary); margin: 0;">
+                📝 Question-by-Question Comparative Matrix
+              </h4>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.2rem 0 0 0;">
+                Item-level tracking: see which mistakes were rectified and which topics remain firm.
+              </p>
+            </div>
+            <div style="font-size: 0.82rem;">
+              <span id="comp-improved-badge" class="badge badge-success" style="margin-right: 0.35rem;">0 Improved</span>
+              <span id="comp-maintained-badge" class="badge" style="background: var(--bg-cream-tint); color: var(--text-primary); border: 1px solid var(--border-color); margin-right: 0.35rem;">0 Mastered</span>
+              <span id="comp-regressed-badge" class="badge badge-warning" style="display: none;">0 Regressed</span>
+            </div>
+          </div>
+          <div class="table-wrapper" style="border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">#</th>
+                  <th>Question Statement</th>
+                  <th style="width: 140px;">Topic</th>
+                  <th style="width: 120px; text-align: center;">Old Attempt</th>
+                  <th style="width: 120px; text-align: center;">New Attempt</th>
+                  <th style="width: 160px; text-align: right;">Growth Outcome</th>
+                </tr>
+              </thead>
+              <tbody id="comp-questions-tbody">
+                <tr><td colspan="6" style="text-align: center; padding: 1.5rem;">Loading question comparison...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FIRST ATTEMPT PROMPT (Displayed when viewing Attempt 1) -->
+    <div id="first-attempt-notice" class="cream-panel" style="display: none; margin-bottom: 2rem; background: #FFFDF9; border: 1px solid var(--border-color-dark); box-shadow: var(--shadow-subtle); border-radius: var(--radius-md);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <span style="font-size: 2.2rem; line-height: 1;">🌱</span>
+          <div>
+            <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary); margin-bottom: 0.2rem;">
+              Initial Attempt Completed!
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-secondary); max-width: 640px; line-height: 1.5;">
+              Want to reinforce what you learned and achieve 100% mastery? Take a <strong>Re-Exam</strong> now to unlock the <strong>Old vs. New Comparative Analysis</strong> and track your score growth side-by-side!
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-accent" onclick="retakeCurrentExam()" style="font-weight: 600; padding: 0.65rem 1.25rem;">
+          🔄 Retake Quiz Now &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- Current Attempt Performance Metric Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-label">Score / Max</div>
+        <div class="stat-card-value" id="card-score">0 / 0</div>
+        <div class="stat-card-sub" id="card-marks-sub">Total marks scored</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Percentage</div>
+        <div class="stat-card-value" id="card-percentage">0%</div>
+        <div class="stat-card-sub" id="card-grade-sub">Grade evaluation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Accuracy Rate</div>
+        <div class="stat-card-value" id="card-accuracy">0%</div>
+        <div class="stat-card-sub">Correct / Attempted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Total Questions</div>
+        <div class="stat-card-value" id="card-total">0</div>
+        <div class="stat-card-sub">In this quiz</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Attempted</div>
+        <div class="stat-card-value" id="card-attempted">0</div>
+        <div class="stat-card-sub">Answered items</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label" style="color: var(--success-color);">Correct</div>
+        <div class="stat-card-value" id="card-correct" style="color: var(--success-color);">0</div>
+        <div class="stat-card-sub">Accurate responses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label" style="color: var(--error-color);">Incorrect</div>
+        <div class="stat-card-value" id="card-incorrect" style="color: var(--error-color);">0</div>
+        <div class="stat-card-sub">Mistakes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Unanswered</div>
+        <div class="stat-card-value" id="card-unanswered">0</div>
+        <div class="stat-card-sub">Left blank</div>
+      </div>
+    </div>
+
+    <!-- Charts Section (4 Standard Analytics Charts) -->
+    <div class="charts-grid">
+      <!-- 1. Doughnut: Correct vs Incorrect vs Unanswered -->
+      <div class="chart-card">
+        <h4>1. Response Breakdown</h4>
+        <div class="chart-container">
+          <canvas id="responseBreakdownChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 2. Bar Chart: Topic-wise Performance (% score per topic) -->
+      <div class="chart-card">
+        <h4>2. Topic-wise Performance (% Score)</h4>
+        <div class="chart-container">
+          <canvas id="topicScoreChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. Line Chart: Historical Exam Performance across attempts -->
+      <div class="chart-card">
+        <h4>3. Historical Assessment Trajectory</h4>
+        <div class="chart-container">
+          <canvas id="historicalPerformanceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 4. Horizontal Bar Chart: Topic Accuracy Percentage -->
+      <div class="chart-card">
+        <h4>4. Topic-wise Accuracy (% Correct / Attempted)</h4>
+        <div class="chart-container">
+          <canvas id="topicAccuracyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Performance Analysis Section -->
+    <div class="analysis-section" style="box-shadow: var(--shadow-subtle); border-radius: var(--radius-md);">
+      <h3 style="margin-bottom: 1.25rem; font-size: 1.15rem; color: var(--text-primary);">Comprehensive Diagnostic Analysis</h3>
+      
+      <div class="analysis-item">
+        <div class="analysis-item-title">Overall Performance Assessment</div>
+        <div class="analysis-item-body" id="analysis-overall">Calculating...</div>
+      </div>
+
+      <div class="analysis-item">
+        <div class="analysis-item-title">Strongest Academic Topic</div>
+        <div class="analysis-item-body" id="analysis-strongest">Calculating...</div>
+      </div>
+
+      <div class="analysis-item">
+        <div class="analysis-item-title">Weakest Academic Topic</div>
+        <div class="analysis-item-body" id="analysis-weakest">Calculating...</div>
+      </div>
+
+      <div class="analysis-item">
+        <div class="analysis-item-title">Topics Requiring Immediate Improvement</div>
+        <div class="analysis-item-body" id="analysis-improvement">Calculating...</div>
+      </div>
+
+      <div class="analysis-item">
+        <div class="analysis-item-title">Suggested Areas for Practice & Revision</div>
+        <div class="analysis-item-body" id="analysis-suggestions">Calculating...</div>
+      </div>
+    </div>
+
+    <!-- Detailed Question Review Table -->
+    <div class="card" id="question-review-card" style="margin-bottom: 2rem; box-shadow: var(--shadow-subtle); border-radius: var(--radius-md);">
+      <div class="card-header">
+        <h3 class="card-title">Detailed Question Review</h3>
+      </div>
+      <div class="table-wrapper" style="border: none;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">Q#</th>
+              <th>Question & Topics</th>
+              <th style="width: 140px;">Your Choice</th>
+              <th style="width: 140px;">Correct Answer</th>
+              <th style="width: 100px;">Outcome</th>
+              <th style="width: 80px; text-align: right;">Marks</th>
+            </tr>
+          </thead>
+          <tbody id="question-review-tbody">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
+                Loading question review...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/result.js"></script>
+</body>
+</html>

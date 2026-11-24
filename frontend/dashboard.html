@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learner Workspace - EduQuest E-Learning</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+  <header class="app-header">
+    <div class="portal-brand">
+      <span class="portal-logo-badge" style="background-color: var(--btn-accent);">EDUQUEST</span>
+      <div>
+        <div class="portal-title">EduQuest E-Learning Platform</div>
+        <div class="portal-subtitle">Interactive Knowledge & Skill Mastery Studio</div>
+      </div>
+    </div>
+    <div class="header-user-info">
+      <div class="user-badge">
+        <span class="user-name" id="nav-student-name">Loading Learner...</span>
+        <span class="user-meta" id="nav-student-enrollment">...</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Student / Learner Profile Card -->
+    <div class="card" id="student-profile-card" style="box-shadow: var(--shadow-card); border-radius: var(--radius-lg); background: #FFFFFF;">
+      <div class="card-header">
+        <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>👤 Learner Profile</span>
+        </h3>
+        <span class="badge badge-success">Enrolled Active Learner</span>
+      </div>
+      <div class="form-row" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+        <div>
+          <p class="stat-card-label" style="font-size: 0.78rem;">Full Name</p>
+          <div style="font-weight: 600; font-size: 1.05rem;" id="profile-name">-</div>
+        </div>
+        <div>
+          <p class="stat-card-label" style="font-size: 0.78rem;">Learner / Enrollment ID</p>
+          <div style="font-weight: 600; font-size: 1.05rem;" id="profile-enrollment">-</div>
+        </div>
+        <div>
+          <p class="stat-card-label" style="font-size: 0.78rem;">Learning Track</p>
+          <div style="font-weight: 600; font-size: 1.05rem;" id="profile-dept">-</div>
+        </div>
+        <div>
+          <p class="stat-card-label" style="font-size: 0.78rem;">Course</p>
+          <div style="font-weight: 600; font-size: 1.05rem;" id="profile-course">-</div>
+        </div>
+        <div>
+          <p class="stat-card-label" style="font-size: 0.78rem;">Semester</p>
+          <div style="font-weight: 600; font-size: 1.05rem;" id="profile-semester">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assigned Quizzes Section -->
+    <div class="page-header" style="margin-top: 2rem;">
+      <div>
+        <h2 style="font-size: 1.4rem;">Interactive Course Quizzes</h2>
+        <p>Available modules, challenges, and mastery re-exams</p>
+      </div>
+    </div>
+
+    <div id="exams-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+      <div class="card" style="text-align: center; padding: 2rem;">
+        <p>Loading course quizzes...</p>
+      </div>
+    </div>
+
+    <!-- Previous Results & Re-Exam History -->
+    <div class="page-header" style="margin-top: 2.5rem;">
+      <div>
+        <h2 style="font-size: 1.4rem;">Completed Quiz Attempts & Analytics</h2>
+        <p>Review past performance reports and launch re-exams to compare growth</p>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-subtle); border-radius: var(--radius-md);">
+      <div class="table-wrapper" style="border: none;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Quiz Title</th>
+              <th>Topic / Subject</th>
+              <th>Submission Date</th>
+              <th>Score</th>
+              <th>Percentage</th>
+              <th>Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="results-table-body">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                Loading results history...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Instructions & Exam Code Modal (Supports Retake Mode) -->
+  <div class="modal-backdrop" id="exam-code-modal">
+    <div class="modal-window">
+      <div class="modal-header" style="background-color: var(--bg-cream-tint);">
+        <h3 class="modal-title" id="modal-exam-title">Quiz Instructions</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeExamModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-instructions-content" style="margin-bottom: 1.25rem;">
+          <div id="modal-retake-banner" class="cream-panel" style="display: none; margin-bottom: 1rem; border-left: 4px solid var(--btn-accent);">
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.2rem;">🔄 Re-Exam Mode Activated</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+              This will create a brand new attempt. Once completed, EduQuest will automatically analyze and display a side-by-side comparison between your Old and New attempts!
+            </div>
+          </div>
+
+          <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem;">Learning Guidelines:</h4>
+          <ul style="padding-left: 1.25rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            <li>Once started, the countdown timer runs until final submission.</li>
+            <li>Use the Question Palette to jump between questions at any time.</li>
+            <li>You can mark questions for review and update responses before submitting.</li>
+            <li>You can retake quizzes at any time to reinforce your skills.</li>
+          </ul>
+          <div style="margin-top: 1rem; padding: 0.85rem; background: var(--bg-cream-soft); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.85rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+            <div><strong>Duration:</strong> <span id="modal-duration">0</span> Mins</div>
+            <div><strong>Questions:</strong> <span id="modal-questions">0</span></div>
+            <div><strong>Max Marks:</strong> <span id="modal-marks">0</span></div>
+          </div>
+        </div>
+
+        <div id="modal-code-alert" class="alert alert-error" style="display: none;"></div>
+
+        <form id="verify-code-form" onsubmit="handleStartExam(event)">
+          <div class="form-group">
+            <label class="form-label" for="exam-passcode-input">Enter Quiz Access Passcode</label>
+            <input type="text" id="exam-passcode-input" class="form-input" placeholder="e.g. WEB2026" required autocomplete="off" style="font-weight: 600; text-transform: uppercase;">
+            <small style="color: var(--text-secondary); font-size: 0.78rem;">Provided by your instructor or course dashboard.</small>
+          </div>
+          <div class="modal-footer" style="padding-left: 0; padding-right: 0; margin-bottom: -0.5rem; background: transparent; border-top: none;">
+            <button type="button" class="btn btn-secondary" onclick="closeExamModal()">Cancel</button>
+            <button type="submit" id="modal-start-btn" class="btn btn-primary" style="background-color: var(--btn-accent); border: none; font-weight: 600;">
+              Verify & Begin Quiz
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: eduquest-elearning-quiz
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      # Connect your Supabase or Neon PostgreSQL URL here:
+      # - key: DATABASE_URL
+      #   value: postgresql://...

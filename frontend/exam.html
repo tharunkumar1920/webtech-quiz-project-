@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Quiz Session - EduQuest</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+  <!-- Top Bar -->
+  <header class="exam-topbar" style="background-color: #FFFFFF; border-bottom: 1px solid var(--border-color);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <span class="portal-logo-badge" style="background-color: var(--btn-accent);">QUIZ LIVE</span>
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="exam-meta-title" id="exam-title-display">Loading Quiz...</div>
+          <span id="attempt-badge" class="badge badge-warning" style="display: none;">Attempt #1</span>
+        </div>
+        <div class="exam-meta-sub">Learner: <strong id="student-enrollment-display">...</strong> (<span id="student-name-display">...</span>)</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div class="timer-box" id="timer-box" title="Remaining Time" style="background: var(--bg-cream-tint); border: 1px solid var(--border-color);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="timer-display">00:00:00</span>
+      </div>
+      <button type="button" class="btn btn-danger btn-sm" onclick="openSubmitModal()">Finish & Submit</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container-wide">
+    <div class="exam-layout">
+      <!-- Question Section -->
+      <section class="question-area" id="question-card">
+        <div class="question-header">
+          <div>
+            <span class="question-number" id="question-num-label">Question 1 of --</span>
+            <span class="question-topic-badge" id="question-topic-label" style="margin-left: 0.5rem;">Topic</span>
+          </div>
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Marks: <strong id="question-marks-label">1</strong></span>
+          </div>
+        </div>
+
+        <div class="question-text" id="question-text-content">
+          Loading question...
+        </div>
+
+        <div class="options-list" id="options-container">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="question-actions">
+          <div class="action-group-left">
+            <button type="button" id="mark-review-btn" class="btn btn-secondary" onclick="toggleMarkForReview()">
+              Mark for Review
+            </button>
+            <button type="button" id="clear-selection-btn" class="btn btn-secondary" onclick="clearSelectedOption()">
+              Clear Response
+            </button>
+          </div>
+          <div class="action-group-right">
+            <button type="button" id="prev-question-btn" class="btn btn-secondary" onclick="navigateQuestion(-1)">
+              &larr; Previous
+            </button>
+            <button type="button" id="save-next-btn" class="btn btn-primary" onclick="saveAndNext()">
+              Save & Next &rarr;
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar / Question Palette -->
+      <aside class="palette-card">
+        <h4 style="margin-bottom: 0.75rem;">Question Palette</h4>
+        
+        <div class="palette-legend">
+          <div class="legend-item">
+            <span class="legend-indicator legend-answered"></span>
+            <span>Answered (<strong id="count-answered">0</strong>)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-indicator legend-unanswered"></span>
+            <span>Unanswered (<strong id="count-unanswered">0</strong>)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-indicator legend-marked"></span>
+            <span>Review (<strong id="count-marked">0</strong>)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-indicator legend-current"></span>
+            <span>Current</span>
+          </div>
+        </div>
+
+        <div class="palette-grid" id="palette-grid-container">
+          <!-- Palette buttons dynamically created -->
+        </div>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <button type="button" class="btn btn-danger btn-block" onclick="openSubmitModal()">
+            Final Submit Examination
+          </button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Submit Confirmation Modal -->
+  <div class="modal-backdrop" id="submit-confirm-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Examination Submission</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeSubmitModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem;">Are you sure you want to conclude and submit your examination? Once submitted, answers cannot be modified.</p>
+        
+        <div style="background: #FAFAF8; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
+            <div>Total Questions: <strong id="modal-summary-total">0</strong></div>
+            <div>Answered: <strong id="modal-summary-answered" style="color: var(--success-color);">0</strong></div>
+            <div>Unanswered: <strong id="modal-summary-unanswered" style="color: var(--error-color);">0</strong></div>
+            <div>Marked for Review: <strong id="modal-summary-marked" style="color: var(--purple-marked);">0</strong></div>
+          </div>
+        </div>
+
+        <div id="submit-error-alert" class="alert alert-error" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeSubmitModal()">Continue Examination</button>
+        <button type="button" id="confirm-submit-btn" class="btn btn-danger" onclick="submitExamFinal()">Submit Examination</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/exam.js"></script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Studio - EduQuest E-Learning</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="portal-brand">
+      <span class="portal-logo-badge" style="background-color: var(--btn-accent);">STUDIO</span>
+      <div>
+        <div class="portal-title">EduQuest Instructor Studio</div>
+        <div class="portal-subtitle">Quiz Management & Question Paper Authoring</div>
+      </div>
+    </div>
+    <div class="header-user-info">
+      <div class="user-badge">
+        <span class="user-name" id="admin-display-name">Instructor / Admin</span>
+        <span class="user-meta" id="admin-display-role">Quiz Author</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="container-wide">
+    <!-- Top Navigation Tabs -->
+    <div class="tabs" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+      <button class="tab-btn active" id="tab-btn-students" onclick="switchAdminTab('students')">Learner Registry</button>
+      <button class="tab-btn" id="tab-btn-exams" onclick="switchAdminTab('exams')">Quiz Management</button>
+      <button class="tab-btn" id="tab-btn-questions" onclick="switchAdminTab('questions')">Question Bank</button>
+      <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('results')">Learner Results & Analytics</button>
+    </div>
+
+    <!-- Alert / Toast Container -->
+    <div id="admin-alert" class="alert alert-success" style="display: none;"></div>
+
+    <!-- TAB 1: Student Management -->
+    <section id="tab-section-students" class="tab-content active">
+      <div class="page-header">
+        <div>
+          <h2>Enrolled Learners</h2>
+          <p>Manage registered candidates, academic departments, and credentials</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddStudentModal()">+ Register New Learner</button>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Learner ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department / Track</th>
+                <th>Course</th>
+                <th>Semester</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading learner registry...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Exam Management -->
+    <section id="tab-section-exams" class="tab-content">
+      <div class="page-header">
+        <div>
+          <h2>Quiz Catalog & Modules</h2>
+          <p>Create, configure, publish, and assign quizzes with question papers</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn btn-accent" onclick="openSimultaneousQuizStudio()" style="font-weight: 600; box-shadow: 0 2px 8px rgba(194, 103, 43, 0.25);">
+            ⚡ + Create Quiz & Question Paper (Simultaneous Studio)
+          </button>
+          <button class="btn btn-secondary" onclick="openCreateExamModal()">
+            + Quick Blank Quiz
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Quiz Title</th>
+                <th>Subject</th>
+                <th>Access Passcode</th>
+                <th>Duration</th>
+                <th>Questions</th>
+                <th>Max Marks</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="exams-tbody">
+              <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading quizzes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Question Bank Management -->
+    <section id="tab-section-questions" class="tab-content">
+      <div class="page-header">
+        <div>
+          <h2>Question Bank</h2>
+          <p>Manage multiple-choice items, answer keys, marks, and topic taxonomy</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <select id="questions-exam-filter" class="form-select" style="min-width: 220px;" onchange="loadQuestionsForSelectedExam()">
+            <option value="">Select Examination</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddQuestionModal()">+ Add Question (Modal)</button>
+        </div>
+      </div>
+
+      <!-- Quick Add Question Form Card -->
+      <div class="card" id="quick-add-question-card" style="margin-bottom: 1.5rem; display: none; border-left: 4px solid var(--btn-primary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+          <div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>➕ Add Question to Quiz</span>
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Target Examination: <strong id="quick-add-exam-name" style="color: var(--text-primary);">-</strong></p>
+          </div>
+          <span class="badge badge-success">Live Sync</span>
+        </div>
+        <form id="quick-question-form" onsubmit="handleQuickAddQuestion(event)">
+          <input type="hidden" id="quick-question-exam-id">
+          
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 600;">Question Statement *</label>
+            <textarea id="quick-question-text" class="form-textarea" rows="2" placeholder="Enter complete question statement..." required></textarea>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 0.75rem;">
+            <div class="form-group" style="flex: 2;">
+              <label class="form-label">Topic / Taxonomy *</label>
+              <input type="text" id="quick-question-topic" class="form-input" placeholder="e.g. JavaScript, SQL, Android, HTML/CSS" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Marks *</label>
+              <input type="number" id="quick-question-marks" class="form-input" min="1" max="100" value="1" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Option A *</label>
+              <input type="text" id="quick-question-opt-a" class="form-input" placeholder="Option A text" required>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Option B *</label>
+              <input type="text" id="quick-question-opt-b" class="form-input" placeholder="Option B text" required>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Option C *</label>
+              <input type="text" id="quick-question-opt-c" class="form-input" placeholder="Option C text" required>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label">Option D *</label>
+              <input type="text" id="quick-question-opt-d" class="form-input" placeholder="Option D text" required>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem; background: #F8F8F6; border: 1px solid var(--border-color); border-radius: var(--radius-sm); flex-wrap: wrap;">
+            <div class="form-group" style="margin: 0; min-width: 220px;">
+              <label class="form-label" style="font-weight: 600; margin-bottom: 0.25rem;">Correct Option Answer *</label>
+              <select id="quick-question-correct" class="form-select" required>
+                <option value="A">Option A</option>
+                <option value="B">Option B</option>
+                <option value="C">Option C</option>
+                <option value="D">Option D</option>
+              </select>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+              <button type="button" class="btn btn-secondary" onclick="resetQuickQuestionForm()">Clear Form</button>
+              <button type="submit" class="btn btn-primary" id="quick-question-submit-btn" style="font-size: 0.95rem; font-weight: 600; padding: 0.65rem 1.6rem;">
+                + Add Question to Quiz
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Question & Options</th>
+                <th style="width: 140px;">Topic</th>
+                <th style="width: 80px;">Marks</th>
+                <th style="width: 100px;">Answer</th>
+                <th style="width: 140px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="questions-tbody">
+              <tr><td colspan="6" style="text-align: center; padding: 2rem;">Select an examination above to view questions.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Results & Export -->
+    <section id="tab-section-results" class="tab-content">
+      <div class="page-header">
+        <div>
+          <h2>Examination Results & Records</h2>
+          <p>View candidate submissions, grading summaries, and export performance data</p>
+        </div>
+        <div>
+          <a href="/api/admin/results/export" class="btn btn-secondary" download>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.35rem;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export All Results (CSV)
+          </a>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Enrollment</th>
+                <th>Student Name</th>
+                <th>Examination</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Accuracy</th>
+                <th>Completed At</th>
+                <th style="text-align: right;">Report</th>
+              </tr>
+            </thead>
+            <tbody id="admin-results-tbody">
+              <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading examination results...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Add / Edit Student -->
+  <div class="modal-backdrop" id="student-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="student-modal-title">Register New Student</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeStudentModal()">&times;</button>
+      </div>
+      <form id="student-form" onsubmit="handleSaveStudent(event)">
+        <input type="hidden" id="student-form-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Enrollment Number</label>
+            <input type="text" id="student-form-enrollment" class="form-input" placeholder="e.g. STU2023002" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="student-form-name" class="form-input" placeholder="Candidate Name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="student-form-email" class="form-input" placeholder="student@university.edu" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Department</label>
+              <input type="text" id="student-form-dept" class="form-input" placeholder="Computer Science" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Course</label>
+              <input type="text" id="student-form-course" class="form-input" placeholder="B.Tech" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semester</label>
+              <input type="number" id="student-form-semester" class="form-input" min="1" max="10" placeholder="3" required>
+            </div>
+          </div>
+          <div class="form-group" id="student-password-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="student-form-password" class="form-input" placeholder="Set initial password">
+            <small style="color: var(--text-secondary); font-size: 0.78rem;">Leave blank when updating existing student to retain current password.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-student-btn">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Simultaneous Quiz & Question Paper Studio -->
+  <div class="modal-backdrop" id="simultaneous-studio-modal">
+    <div class="modal-window" style="max-width: 880px; width: 95%; max-height: 94vh;">
+      <div class="modal-header" style="background-color: var(--bg-cream-tint);">
+        <div>
+          <h3 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.15rem;">
+            <span>⚡ Simultaneous Quiz & Question Paper Studio</span>
+            <span class="badge badge-success" style="font-size: 0.72rem;">All-in-One Creation</span>
+          </h3>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0.2rem 0 0 0;">
+            Define quiz information and compose the complete question paper in a single simultaneous flow.
+          </p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeSimultaneousStudio()">&times;</button>
+      </div>
+
+      <form id="simultaneous-studio-form" onsubmit="handleSimultaneousStudioSubmit(event)">
+        <div class="modal-body" style="padding: 1.25rem;">
+          <!-- SECTION 1: Quiz Details -->
+          <div class="cream-panel" style="margin-bottom: 1.5rem; background: var(--bg-cream-soft); border-left: 4px solid var(--btn-accent);">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600;">1. Quiz Overview & Settings</h4>
+            <div class="form-row" style="margin-bottom: 0.75rem;">
+              <div class="form-group" style="margin-bottom: 0; flex: 2;">
+                <label class="form-label">Quiz Title *</label>
+                <input type="text" id="studio-title" class="form-input" placeholder="e.g. JavaScript & Async Foundations" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                <label class="form-label">Subject / Learning Domain *</label>
+                <input type="text" id="studio-subject" class="form-input" placeholder="e.g. Web Technologies" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Access Passcode *</label>
+                <input type="text" id="studio-code" class="form-input" placeholder="e.g. JS2026" required style="font-weight: 600; text-transform: uppercase;">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Duration (Minutes) *</label>
+                <input type="number" id="studio-duration" class="form-input" min="5" max="300" value="25" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; padding-bottom: 0.5rem;">
+                  <input type="checkbox" id="studio-auto-assign" checked>
+                  Auto-assign to all enrolled learners
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: Simultaneous Question Paper Builder -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h4 style="font-size: 1rem; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                <span>2. Simultaneous Question Paper Builder</span>
+                <span class="badge badge-neutral" id="studio-count-badge">0 Questions</span>
+                <span class="badge badge-neutral" id="studio-marks-badge">0 Marks Total</span>
+              </h4>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                Write multiple-choice questions, set marks, and tag correct answers below.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="loadStudioPresetQuestions()">
+                ⚡ Load 3 Sample Preset Questions
+              </button>
+              <button type="button" class="btn btn-accent btn-sm" onclick="addStudioQuestionCard()">
+                + Add Another Question
+              </button>
+            </div>
+          </div>
+
+          <!-- Container for dynamic questions -->
+          <div id="studio-questions-list">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+
+        <div class="modal-footer" style="background-color: var(--bg-cream-tint);">
+          <button type="button" class="btn btn-secondary" onclick="closeSimultaneousStudio()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="studio-submit-btn" style="background-color: var(--btn-accent); border: none; font-weight: 600;">
+            🚀 Publish Quiz & Question Paper Simultaneously
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Create Exam -->
+  <div class="modal-backdrop" id="exam-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Examination</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeExamModal()">&times;</button>
+      </div>
+      <form id="exam-form" onsubmit="handleCreateExam(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Examination Title</label>
+            <input type="text" id="exam-form-title" class="form-input" placeholder="e.g. Midterm Assessment: Web Technologies" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input type="text" id="exam-form-subject" class="form-input" placeholder="e.g. Web Technologies" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Access Passcode</label>
+              <input type="text" id="exam-form-code" class="form-input" placeholder="e.g. WEB2024" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Duration (Minutes)</label>
+              <input type="number" id="exam-form-duration" class="form-input" min="5" max="300" value="60" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Questions</label>
+              <input type="number" id="exam-form-questions" class="form-input" min="1" value="10" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum Marks</label>
+              <input type="number" id="exam-form-marks" class="form-input" min="1" value="10" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeExamModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-exam-btn">Create Examination</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Assign Exam to Students -->
+  <div class="modal-backdrop" id="assign-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Examination to Candidates</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeAssignModal()">&times;</button>
+      </div>
+      <form id="assign-form" onsubmit="handleAssignExam(event)">
+        <input type="hidden" id="assign-exam-id">
+        <div class="modal-body">
+          <p style="margin-bottom: 1rem;">Select candidates to assign to <strong id="assign-exam-title">-</strong>:</p>
+          <div style="margin-bottom: 0.75rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selectAllAssignStudents(true)">Select All</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selectAllAssignStudents(false)">Deselect All</button>
+          </div>
+          <div id="assign-students-list" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.5rem;">
+            Loading candidates...
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeAssignModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-assign-btn">Assign Candidates</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add / Edit Question -->
+  <div class="modal-backdrop" id="question-modal">
+    <div class="modal-window" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="question-modal-title">Add Multiple Choice Question</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeQuestionModal()">&times;</button>
+      </div>
+      <form id="question-form" onsubmit="handleSaveQuestion(event)">
+        <input type="hidden" id="question-form-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Examination</label>
+            <select id="question-form-exam-id" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Question Text</label>
+            <textarea id="question-form-text" class="form-textarea" rows="3" placeholder="Enter complete question statement..." required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Topic / Taxonomy</label>
+              <input type="text" id="question-form-topic" class="form-input" placeholder="e.g. JavaScript, SQL, HTML/CSS" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Marks</label>
+              <input type="number" id="question-form-marks" class="form-input" min="1" value="1" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option A</label>
+            <input type="text" id="question-form-opt-a" class="form-input" placeholder="Option A text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option B</label>
+            <input type="text" id="question-form-opt-b" class="form-input" placeholder="Option B text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option C</label>
+            <input type="text" id="question-form-opt-c" class="form-input" placeholder="Option C text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option D</label>
+            <input type="text" id="question-form-opt-d" class="form-input" placeholder="Option D text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 600;">Correct Option Answer *</label>
+            <select id="question-form-correct" class="form-select" required>
+              <option value="A">Option A</option>
+              <option value="B">Option B</option>
+              <option value="C">Option C</option>
+              <option value="D">Option D</option>
+            </select>
+          </div>
+
+          <!-- DIRECT ADD BUTTON RIGHT AFTER ENTERING QUESTION & OPTIONS -->
+          <div class="form-group" style="margin-top: 1.5rem; padding: 1rem; background: #F8F8F6; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <div style="font-weight: 600; font-size: 0.9rem;" id="modal-inline-btn-hint">Finished entering question & options?</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">Click the button to save this question immediately.</div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="save-question-btn-inline" style="font-size: 0.95rem; font-weight: 600; padding: 0.65rem 1.4rem;">
+              + Add Question
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeQuestionModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-question-btn">+ Add Question</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

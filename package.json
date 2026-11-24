@@ -1,0 +1,23 @@
+{
+  "name": "online-exam-system",
+  "version": "1.0.0",
+  "description": "Online Examination System with Instant Evaluation and Performance Analytics",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "launch": "node start.js",
+    "open": "node start.js",
+    "seed": "node backend/database/seed.js",
+    "test": "node backend/test_e2e_verification.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "pg": "^8.23.1",
+    "sqlite3": "^5.1.7"
+  }
+}

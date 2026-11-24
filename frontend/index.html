@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduQuest - E-Learning Quiz & Knowledge Studio</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: var(--bg-color);">
+  <header class="app-header">
+    <div class="portal-brand">
+      <span class="portal-logo-badge" style="background-color: var(--btn-accent);">EDUQUEST</span>
+      <div>
+        <div class="portal-title">EduQuest E-Learning Quiz Platform</div>
+        <div class="portal-subtitle">Interactive Knowledge & Skill Mastery Studio</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-narrow" style="max-width: 480px; margin: 2rem auto;">
+    <div class="card" style="box-shadow: var(--shadow-card); border-radius: var(--radius-lg); padding: 2rem;">
+      <div class="card-header" style="justify-content: center; text-align: center; border-bottom: none; padding-bottom: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.35rem;">Welcome to EduQuest</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Join interactive quizzes, retake challenges, and accelerate your learning.</p>
+        </div>
+      </div>
+
+      <!-- Main Role Tabs: Learner vs Administrator -->
+      <div class="tabs" style="justify-content: center; margin-top: 1rem; margin-bottom: 1.25rem;">
+        <button type="button" class="tab-btn active" id="tab-student" onclick="switchLoginTab('student')">Learner Portal</button>
+        <button type="button" class="tab-btn" id="tab-admin" onclick="switchLoginTab('admin')">Instructor / Admin</button>
+      </div>
+
+      <div id="login-alert" class="alert alert-error" style="display: none;"></div>
+
+      <!-- LEARNER SECTION -->
+      <div id="learner-section">
+        <!-- Sub-tabs: Sign In vs Sign Up -->
+        <div style="display: flex; background: var(--bg-cream-tint); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-color);">
+          <button type="button" id="btn-mode-signin" onclick="switchLearnerMode('signin')" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; border: none; background: #FFFFFF; color: var(--text-primary); border-radius: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.2s;">
+            Sign In
+          </button>
+          <button type="button" id="btn-mode-signup" onclick="switchLearnerMode('signup')" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; font-weight: 500; border: none; background: transparent; color: var(--text-secondary); border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+            Create Account
+          </button>
+        </div>
+
+        <!-- Student Sign In Form -->
+        <form id="student-login-form" onsubmit="handleStudentLogin(event)">
+          <div class="form-group">
+            <label class="form-label" for="student-identifier">Email Address or Learner ID</label>
+            <input type="text" id="student-identifier" class="form-input" placeholder="e.g. alex@learning.edu or STU2023001" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="student-password">Password</label>
+            <input type="password" id="student-password" class="form-input" placeholder="Enter your account password" required autocomplete="current-password">
+          </div>
+          <button type="submit" id="student-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.25rem; background-color: var(--btn-primary);">
+            Sign In to Learning Studio
+          </button>
+        </form>
+
+        <!-- Student Sign Up / Registration Form -->
+        <form id="student-signup-form" onsubmit="handleStudentSignup(event)" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name *</label>
+            <input type="text" id="signup-name" class="form-input" placeholder="e.g. Alex Morgan" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address *</label>
+            <input type="email" id="signup-email" class="form-input" placeholder="e.g. alex@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-enrollment">Learner ID / Enrollment No. (Optional)</label>
+            <input type="text" id="signup-enrollment" class="form-input" placeholder="Leave blank to auto-generate">
+          </div>
+          <div class="form-row" style="margin-bottom: 0.75rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="signup-dept">Learning Track / Dept</label>
+              <input type="text" id="signup-dept" class="form-input" placeholder="e.g. Computer Science" value="Computer Science">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="signup-course">Course</label>
+              <input type="text" id="signup-course" class="form-input" placeholder="e.g. Web Tech" value="B.Tech">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Create Password *</label>
+            <input type="password" id="signup-password" class="form-input" placeholder="Choose a secure password" minlength="4" required>
+          </div>
+          <button type="submit" id="signup-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.25rem; background-color: var(--btn-accent);">
+            Create Learner Account
+          </button>
+        </form>
+      </div>
+
+      <!-- INSTRUCTOR / ADMIN FORM -->
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event)" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="admin-username">Administrator Username</label>
+          <input type="text" id="admin-username" class="form-input" placeholder="Enter administrative username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-password">Password</label>
+          <input type="password" id="admin-password" class="form-input" placeholder="Enter administrative password" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="admin-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+          Sign In as Instructor / Admin
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
