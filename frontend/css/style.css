@@ -802,16 +802,19 @@ a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(26, 26, 26, 0.55);
+  backdrop-filter: blur(2px);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 100;
-  padding: 1rem;
+  z-index: 1000;
+  padding: 1.5rem 1rem;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
-.modal-backdrop.show {
+.modal-backdrop.show,
+.modal-backdrop.active {
   display: flex;
 }
 
@@ -821,11 +824,24 @@ a:hover {
   border-radius: var(--radius-md);
   max-width: 580px;
   width: 100%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
-  max-height: 92vh;
+  max-height: 90vh;
+  margin: auto;
   overflow: hidden;
+  position: relative;
+}
+
+/* Ensure all forms inside modal windows act as full-height flex containers */
+.modal-window form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  margin: 0;
 }
 
 .modal-header {
@@ -847,9 +863,30 @@ a:hover {
   padding: 1.5rem;
   font-size: 0.92rem;
   line-height: 1.5;
-  overflow-y: auto;
+  overflow-y: auto !important;
   flex: 1 1 auto;
+  min-height: 0;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Custom Sleek Scrollbar for Modal Body */
+.modal-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--bg-cream, #FAF7F2);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-color-dark, #D1CDC7);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--btn-accent, #B85D19);
 }
 
 .modal-footer {

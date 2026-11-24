@@ -1017,13 +1017,17 @@ function openAddInstructorModal() {
   const modal = document.getElementById('instructor-modal');
   if (modal) {
     document.getElementById('add-instructor-form')?.reset();
+    modal.classList.add('show');
     modal.classList.add('active');
   }
 }
 
 function closeAddInstructorModal() {
   const modal = document.getElementById('instructor-modal');
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.classList.remove('show');
+    modal.classList.remove('active');
+  }
 }
 
 async function handleSaveInstructor(event) {

@@ -345,8 +345,8 @@
 
   <!-- MODAL: Simultaneous Quiz & Question Paper Studio -->
   <div class="modal-backdrop" id="simultaneous-studio-modal">
-    <div class="modal-window" style="max-width: 880px; width: 95%; max-height: 94vh;">
-      <div class="modal-header" style="background-color: var(--bg-cream-tint);">
+    <div class="modal-window" style="max-width: 900px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="background-color: var(--bg-cream-tint); flex-shrink: 0;">
         <div>
           <h3 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.15rem;">
             <span>⚡ Simultaneous Quiz & Question Paper Studio</span>
@@ -359,8 +359,8 @@
         <button class="btn btn-secondary btn-sm" onclick="closeSimultaneousStudio()">&times;</button>
       </div>
 
-      <form id="simultaneous-studio-form" onsubmit="handleSimultaneousStudioSubmit(event)">
-        <div class="modal-body" style="padding: 1.25rem;">
+      <form id="simultaneous-studio-form" onsubmit="handleSimultaneousStudioSubmit(event)" style="display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; margin: 0;">
+        <div class="modal-body" style="padding: 1.25rem; overflow-y: auto; flex: 1 1 auto; min-height: 0;">
           <!-- SECTION 1: Quiz Details -->
           <div class="cream-panel" style="margin-bottom: 1.5rem; background: var(--bg-cream-soft); border-left: 4px solid var(--btn-accent);">
             <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600;">1. Quiz Overview & Settings</h4>
@@ -420,7 +420,7 @@
           </div>
         </div>
 
-        <div class="modal-footer" style="background-color: var(--bg-cream-tint);">
+        <div class="modal-footer" style="background-color: var(--bg-cream-tint); flex-shrink: 0;">
           <button type="button" class="btn btn-secondary" onclick="closeSimultaneousStudio()">Cancel</button>
           <button type="submit" class="btn btn-primary btn-lg" id="studio-submit-btn" style="background-color: var(--btn-accent); border: none; font-weight: 600;">
             🚀 Publish Quiz & Question Paper Simultaneously
