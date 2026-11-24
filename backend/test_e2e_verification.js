@@ -619,7 +619,90 @@ async function runTests() {
       assert.ok(simRes.data.assigned_students_count > 0, 'Auto-assigned to existing students in DB');
     });
 
-    // 6. Cross-role Authorization Guards
+    // 6. Admin & Instructor Management Suite
+    await test('Guest can self-register a new Admin/Instructor via POST /api/auth/admin/register', async () => {
+      const regRes = await runHttp('POST', '/api/auth/admin/register', {
+        name: 'Dr. Alan Turing',
+        username: 'prof_turing',
+        password: 'password123',
+        role: 'instructor'
+      }, 'guest_admin');
+
+      assert.strictEqual(regRes.status, 201);
+      assert.strictEqual(regRes.data.success, true);
+      assert.strictEqual(regRes.data.user.username, 'prof_turing');
+      assert.strictEqual(regRes.data.user.role, 'admin'); // grants administrative dashboard access
+
+      // Duplicate registration rejected
+      const dupRes = await runHttp('POST', '/api/auth/admin/register', {
+        name: 'Duplicate Turing',
+        username: 'prof_turing',
+        password: 'password123'
+      }, 'guest_admin');
+      assert.strictEqual(dupRes.status, 400);
+    });
+
+    await test('Admin can list all instructors via GET /api/admin/instructors', async () => {
+      const res = await runHttp('GET', '/api/admin/instructors', null, 'admin');
+      assert.strictEqual(res.status, 200);
+      const instructors = Array.isArray(res.data) ? res.data : (res.data?.instructors || []);
+      assert.ok(Array.isArray(instructors));
+      assert.ok(instructors.length >= 2, 'Should contain seeded admin and registered instructor');
+      const found = instructors.find(i => i.username === 'prof_turing');
+      assert.ok(found, 'Newly registered instructor should appear in list');
+    });
+
+    let createdStaffId = null;
+    await test('Admin can create a new instructor via POST /api/admin/instructors', async () => {
+      const createRes = await runHttp('POST', '/api/admin/instructors', {
+        name: 'Prof. Grace Hopper',
+        username: 'prof_hopper',
+        password: 'compiler123',
+        role: 'instructor'
+      }, 'admin');
+
+      assert.strictEqual(createRes.status, 201);
+      assert.strictEqual(createRes.data.success, true);
+      assert.strictEqual(createRes.data.instructor.username, 'prof_hopper');
+      createdStaffId = createRes.data.instructor.id;
+    });
+
+    await test('Newly created instructor can log in and view dashboard', async () => {
+      const loginRes = await runHttp('POST', '/api/auth/admin/login', {
+        username: 'prof_hopper',
+        password: 'compiler123'
+      }, 'hopper_session');
+
+      assert.strictEqual(loginRes.status, 200);
+      assert.strictEqual(loginRes.data.user.username, 'prof_hopper');
+      assert.strictEqual(loginRes.data.user.role, 'admin');
+    });
+
+    await test('Admin cannot delete their own account (protection guard)', async () => {
+      // First get current admin ID
+      const meRes = await runHttp('GET', '/api/auth/me', null, 'admin');
+      const adminId = meRes.data.user.id;
+
+      const delSelfRes = await runHttp('DELETE', `/api/admin/instructors/${adminId}`, null, 'admin');
+      assert.strictEqual(delSelfRes.status, 400);
+      const errMsg = delSelfRes.data.message || delSelfRes.data.error || '';
+      assert.ok(errMsg.includes('cannot remove your own'));
+    });
+
+    await test('Admin can delete an instructor via DELETE /api/admin/instructors/:id', async () => {
+      assert.ok(createdStaffId, 'Staff ID must exist from previous test');
+      const delRes = await runHttp('DELETE', `/api/admin/instructors/${createdStaffId}`, null, 'admin');
+      assert.strictEqual(delRes.status, 200);
+      assert.strictEqual(delRes.data.success, true);
+
+      // Verify instructor no longer appears
+      const listRes = await runHttp('GET', '/api/admin/instructors', null, 'admin');
+      const instructors = Array.isArray(listRes.data) ? listRes.data : (listRes.data?.instructors || []);
+      const found = instructors.find(i => i.id === createdStaffId);
+      assert.strictEqual(found, undefined);
+    });
+
+    // 7. Cross-role Authorization Guards
     await test('Student cannot access admin routes (403/401)', async () => {
       const res = await runHttp('GET', '/api/admin/students', null, 'student');
       assert.strictEqual(res.status, 403);

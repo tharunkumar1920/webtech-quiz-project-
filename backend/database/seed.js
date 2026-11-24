@@ -16,22 +16,27 @@ async function seedDatabase() {
   await initSchema();
   console.log('Schema initialized successfully.');
 
-  // 1. Seed Admin
-  console.log('--- Seeding Admin ---');
+  // 1. Seed Admins & Instructors
+  console.log('--- Seeding Admins & Instructors ---');
   const adminPasswordHash = bcrypt.hashSync('admin123', 10);
-  const existingAdmin = await get(`SELECT id FROM Admins WHERE username = ?`, ['admin']);
-  let adminId;
-  if (!existingAdmin) {
-    const res = await run(
-      `INSERT INTO Admins (username, password_hash, name, role) VALUES (?, ?, ?, ?)`,
-      ['admin', adminPasswordHash, 'System Administrator', 'superadmin']
-    );
-    adminId = res.id;
-    console.log(`Created admin: admin (ID: ${adminId})`);
-  } else {
-    adminId = existingAdmin.id;
-    await run(`UPDATE Admins SET password_hash = ? WHERE id = ?`, [adminPasswordHash, adminId]);
-    console.log(`Updated admin password: admin (ID: ${adminId})`);
+  const initialAdmins = [
+    { username: 'admin', name: 'System Administrator', role: 'superadmin' },
+    { username: 'instructor_tharun', name: 'Prof. Tharun Kumar', role: 'instructor' },
+    { username: 'instructor_demo', name: 'Lead Quiz Instructor', role: 'instructor' }
+  ];
+
+  for (const adm of initialAdmins) {
+    const existing = await get(`SELECT id FROM Admins WHERE LOWER(username) = LOWER(?)`, [adm.username]);
+    if (!existing) {
+      const res = await run(
+        `INSERT INTO Admins (username, password_hash, name, role) VALUES (?, ?, ?, ?)`,
+        [adm.username, adminPasswordHash, adm.name, adm.role]
+      );
+      console.log(`Created admin/instructor: ${adm.username} (ID: ${res.id})`);
+    } else {
+      await run(`UPDATE Admins SET password_hash = ?, name = ?, role = ? WHERE id = ?`, [adminPasswordHash, adm.name, adm.role, existing.id]);
+      console.log(`Updated admin/instructor: ${adm.username} (ID: ${existing.id})`);
+    }
   }
 
   // 2. Seed Students

@@ -99,20 +99,59 @@
         </form>
       </div>
 
-      <!-- INSTRUCTOR / ADMIN FORM -->
-      <form id="admin-login-form" onsubmit="handleAdminLogin(event)" style="display: none;">
-        <div class="form-group">
-          <label class="form-label" for="admin-username">Administrator Username</label>
-          <input type="text" id="admin-username" class="form-input" placeholder="Enter administrative username" required autocomplete="username">
+      <!-- INSTRUCTOR / ADMIN SECTION -->
+      <div id="admin-section" style="display: none;">
+        <!-- Sub-tabs: Sign In vs Create Account -->
+        <div style="display: flex; background: var(--bg-cream-tint); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 1.25rem; border: 1px solid var(--border-color);">
+          <button type="button" id="btn-admin-mode-signin" onclick="switchAdminMode('signin')" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; border: none; background: #FFFFFF; color: var(--text-primary); border-radius: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.2s;">
+            Sign In
+          </button>
+          <button type="button" id="btn-admin-mode-signup" onclick="switchAdminMode('signup')" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; font-weight: 500; border: none; background: transparent; color: var(--text-secondary); border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+            Create Account
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="admin-password">Password</label>
-          <input type="password" id="admin-password" class="form-input" placeholder="Enter administrative password" required autocomplete="current-password">
-        </div>
-        <button type="submit" id="admin-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
-          Sign In as Instructor / Admin
-        </button>
-      </form>
+
+        <!-- Instructor / Admin Sign In Form -->
+        <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+          <div class="form-group">
+            <label class="form-label" for="admin-username">Administrator or Instructor Username</label>
+            <input type="text" id="admin-username" class="form-input" placeholder="e.g. admin or instructor_tharun" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-password">Password</label>
+            <input type="password" id="admin-password" class="form-input" placeholder="Enter password (e.g. admin123)" required autocomplete="current-password">
+          </div>
+          <button type="submit" id="admin-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.25rem;">
+            Sign In as Instructor / Admin
+          </button>
+        </form>
+
+        <!-- Instructor / Admin Sign Up Form -->
+        <form id="admin-signup-form" onsubmit="handleAdminSignup(event)" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="admin-signup-name">Full Name *</label>
+            <input type="text" id="admin-signup-name" class="form-input" placeholder="e.g. Prof. Tharun Kumar" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-signup-username">Username / Staff ID *</label>
+            <input type="text" id="admin-signup-username" class="form-input" placeholder="e.g. instructor_tharun" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-signup-role">Role</label>
+            <select id="admin-signup-role" class="form-select">
+              <option value="instructor">Course Instructor / Faculty</option>
+              <option value="admin">Lead Platform Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-signup-password">Create Password *</label>
+            <input type="password" id="admin-signup-password" class="form-input" placeholder="Choose a secure password (min 4 chars)" minlength="4" required autocomplete="new-password">
+          </div>
+          <button type="submit" id="admin-signup-submit-btn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.25rem; background-color: var(--btn-accent);">
+            Create Instructor Account
+          </button>
+        </form>
+      </div>
     </div>
   </main>
 

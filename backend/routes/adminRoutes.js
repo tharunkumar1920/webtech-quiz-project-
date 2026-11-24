@@ -30,4 +30,9 @@ router.delete('/questions/:id', adminController.deleteQuestion);
 router.get('/results', adminController.getAllResults);
 router.get('/results/export', adminController.exportResultsCSV);
 
+// Instructor & Staff management
+router.get('/instructors', adminController.getAllInstructors);
+router.post('/instructors', adminController.createInstructor);
+router.delete('/instructors/:id', adminController.deleteInstructor);
+
 module.exports = router;

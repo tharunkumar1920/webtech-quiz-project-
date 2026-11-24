@@ -223,6 +223,67 @@ async function adminLogin(req, res) {
 }
 
 /**
+ * Administrator / Instructor Self-Registration (Sign Up)
+ * POST /api/auth/admin/register
+ * Body: { name, username, password, role }
+ */
+async function adminRegister(req, res) {
+  try {
+    const { name, username, password, role } = req.body;
+
+    if (!name || !username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Full name, username, and password are required'
+      });
+    }
+
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanName = name.trim();
+    const assignedRole = (role === 'admin' || role === 'superadmin') ? 'admin' : 'instructor';
+
+    // Check duplicate username
+    const existing = await get(
+      `SELECT id, username FROM Admins WHERE LOWER(username) = LOWER(?)`,
+      [cleanUsername]
+    );
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        error: 'An administrator or instructor with this username already exists.'
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const insertResult = await run(
+      `INSERT INTO Admins (username, password_hash, name, role) VALUES (?, ?, ?, ?)`,
+      [cleanUsername, passwordHash, cleanName, assignedRole]
+    );
+
+    // Set session user
+    req.session.user = {
+      id: insertResult.id,
+      username: cleanUsername,
+      name: cleanName,
+      role: 'admin' // Grants access to instructor/admin studio
+    };
+
+    return res.status(201).json({
+      success: true,
+      message: 'Instructor / Admin account created successfully! Welcome to the Studio.',
+      user: req.session.user
+    });
+  } catch (error) {
+    console.error('Error in adminRegister:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'An internal server error occurred while creating admin account.'
+    });
+  }
+}
+
+/**
  * Get current authenticated user
  * GET /api/auth/me
  */
@@ -278,6 +339,7 @@ function logout(req, res) {
 module.exports = {
   studentRegister,
   studentLogin,
+  adminRegister,
   adminLogin,
   getCurrentUser,
   logout

@@ -2,13 +2,14 @@
 
 let activeRole = 'student';
 let activeLearnerMode = 'signin';
+let activeAdminMode = 'signin';
 
 function switchLoginTab(role) {
   activeRole = role;
   const studentTab = document.getElementById('tab-student');
   const adminTab = document.getElementById('tab-admin');
   const learnerSection = document.getElementById('learner-section');
-  const adminForm = document.getElementById('admin-login-form');
+  const adminSection = document.getElementById('admin-section');
   const alertBox = document.getElementById('login-alert');
 
   alertBox.style.display = 'none';
@@ -17,12 +18,12 @@ function switchLoginTab(role) {
     studentTab.classList.add('active');
     adminTab.classList.remove('active');
     learnerSection.style.display = 'block';
-    adminForm.style.display = 'none';
+    if (adminSection) adminSection.style.display = 'none';
   } else {
     adminTab.classList.add('active');
     studentTab.classList.remove('active');
     learnerSection.style.display = 'none';
-    adminForm.style.display = 'block';
+    if (adminSection) adminSection.style.display = 'block';
   }
 }
 
@@ -62,6 +63,49 @@ function switchLearnerMode(mode) {
 
     formSignIn.style.display = 'none';
     formSignUp.style.display = 'block';
+  }
+}
+
+function switchAdminMode(mode) {
+  activeAdminMode = mode;
+  const btnSignIn = document.getElementById('btn-admin-mode-signin');
+  const btnSignUp = document.getElementById('btn-admin-mode-signup');
+  const formSignIn = document.getElementById('admin-login-form');
+  const formSignUp = document.getElementById('admin-signup-form');
+  const alertBox = document.getElementById('login-alert');
+
+  if (alertBox) alertBox.style.display = 'none';
+
+  if (mode === 'signin') {
+    if (btnSignIn) {
+      btnSignIn.style.background = '#FFFFFF';
+      btnSignIn.style.color = 'var(--text-primary)';
+      btnSignIn.style.fontWeight = '600';
+      btnSignIn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)';
+    }
+    if (btnSignUp) {
+      btnSignUp.style.background = 'transparent';
+      btnSignUp.style.color = 'var(--text-secondary)';
+      btnSignUp.style.fontWeight = '500';
+      btnSignUp.style.boxShadow = 'none';
+    }
+    if (formSignIn) formSignIn.style.display = 'block';
+    if (formSignUp) formSignUp.style.display = 'none';
+  } else {
+    if (btnSignUp) {
+      btnSignUp.style.background = '#FFFFFF';
+      btnSignUp.style.color = 'var(--text-primary)';
+      btnSignUp.style.fontWeight = '600';
+      btnSignUp.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)';
+    }
+    if (btnSignIn) {
+      btnSignIn.style.background = 'transparent';
+      btnSignIn.style.color = 'var(--text-secondary)';
+      btnSignIn.style.fontWeight = '500';
+      btnSignIn.style.boxShadow = 'none';
+    }
+    if (formSignIn) formSignIn.style.display = 'none';
+    if (formSignUp) formSignUp.style.display = 'block';
   }
 }
 
@@ -192,6 +236,45 @@ async function handleAdminLogin(event) {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Sign In as Instructor / Admin';
+  }
+}
+
+async function handleAdminSignup(event) {
+  event.preventDefault();
+  const name = document.getElementById('admin-signup-name').value.trim();
+  const username = document.getElementById('admin-signup-username').value.trim();
+  const role = document.getElementById('admin-signup-role').value;
+  const password = document.getElementById('admin-signup-password').value;
+  const submitBtn = document.getElementById('admin-signup-submit-btn');
+
+  if (!name || !username || !password) {
+    showAlert('Please fill in your name, username, and password.');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating Instructor Account...';
+
+  try {
+    const res = await fetch('/api/auth/admin/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, username, role, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || data.error || 'Registration failed.');
+    }
+
+    // Direct redirect to instructor/admin studio
+    window.location.href = 'admin.html';
+  } catch (err) {
+    showAlert(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Instructor Account';
   }
 }
 

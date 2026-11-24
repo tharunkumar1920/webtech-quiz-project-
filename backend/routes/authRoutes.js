@@ -8,6 +8,9 @@ router.post('/student/register', authController.studentRegister);
 // Student login (Sign In)
 router.post('/student/login', authController.studentLogin);
 
+// Admin registration (Sign Up)
+router.post('/admin/register', authController.adminRegister);
+
 // Admin login
 router.post('/admin/login', authController.adminLogin);
 

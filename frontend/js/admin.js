@@ -51,7 +51,7 @@ function showToast(message, type = 'success') {
 
 // Tab Switching
 function switchAdminTab(tabName) {
-  const tabs = ['students', 'exams', 'questions', 'results'];
+  const tabs = ['students', 'exams', 'questions', 'results', 'instructors'];
   tabs.forEach(t => {
     const btn = document.getElementById(`tab-btn-${t}`);
     const sec = document.getElementById(`tab-section-${t}`);
@@ -69,6 +69,7 @@ function switchAdminTab(tabName) {
   else if (tabName === 'questions') {
     populateExamDropdowns();
   } else if (tabName === 'results') loadAdminResults();
+  else if (tabName === 'instructors') loadInstructors();
 }
 
 // ==========================================================================
@@ -958,6 +959,125 @@ async function handleSimultaneousStudioSubmit(e) {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = '🚀 Publish Quiz & Question Paper Simultaneously';
+  }
+}
+
+// ==========================================================================
+// 5. Instructor & Staff Management
+// ==========================================================================
+
+async function loadInstructors() {
+  const tbody = document.getElementById('instructors-tbody');
+  if (!tbody) return;
+
+  try {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading instructors list...</td></tr>';
+    const res = await fetch('/api/admin/instructors');
+    if (!res.ok) throw new Error('Failed to load instructor accounts');
+    const resData = await res.json();
+    const instructors = Array.isArray(resData) ? resData : (resData.instructors || []);
+
+    if (!Array.isArray(instructors) || instructors.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No instructors or administrators found.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = instructors.map(inst => {
+      const isSelf = currentAdmin && (currentAdmin.id === inst.id || currentAdmin.username === inst.username);
+      const isSuper = inst.role === 'admin';
+      return `
+        <tr>
+          <td style="font-weight: 600;">#${inst.id}</td>
+          <td style="font-weight: 600;">${escapeHtml(inst.name)}</td>
+          <td><code style="font-family: monospace; background: var(--bg-cream); padding: 0.2rem 0.4rem; border-radius: 4px;">${escapeHtml(inst.username)}</code></td>
+          <td>
+            <span class="badge ${isSuper ? 'badge-primary' : 'badge-neutral'}" style="font-size: 0.78rem;">
+              ${isSuper ? '🛡️ Administrator' : '🎓 Instructor'}
+            </span>
+          </td>
+          <td style="font-size: 0.85rem; color: var(--text-secondary);">
+            ${inst.created_at ? new Date(inst.created_at).toLocaleDateString() : 'Active'}
+          </td>
+          <td style="text-align: right;">
+            ${isSelf
+              ? '<span class="badge badge-neutral" style="font-size: 0.75rem;">(Current User)</span>'
+              : `<button class="btn btn-secondary btn-sm" style="color: #DC2626; border-color: #FCA5A5;" onclick="deleteInstructor(${inst.id}, '${escapeHtml(inst.username)}')">Remove</button>`
+            }
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('loadInstructors error:', err);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent-red); padding: 2rem;">Error: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+function openAddInstructorModal() {
+  const modal = document.getElementById('instructor-modal');
+  if (modal) {
+    document.getElementById('add-instructor-form')?.reset();
+    modal.classList.add('active');
+  }
+}
+
+function closeAddInstructorModal() {
+  const modal = document.getElementById('instructor-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+async function handleSaveInstructor(event) {
+  event.preventDefault();
+  const name = document.getElementById('inst-form-name').value.trim();
+  const username = document.getElementById('inst-form-username').value.trim();
+  const role = document.getElementById('inst-form-role').value;
+  const password = document.getElementById('inst-form-password').value;
+
+  if (!name || !username || !password) {
+    alert('Please fill out all required fields.');
+    return;
+  }
+
+  const submitBtn = document.getElementById('inst-form-submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch('/api/admin/instructors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, username, role, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to create instructor account.');
+
+    closeAddInstructorModal();
+    showToast(`Staff member "${name}" (${username}) created successfully!`);
+    await loadInstructors();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Staff Account';
+  }
+}
+
+async function deleteInstructor(id, username) {
+  if (!confirm(`Are you sure you want to remove instructor / admin "${username}"? This action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/instructors/${id}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to remove instructor.');
+
+    showToast(`Staff member "${username}" has been removed.`);
+    await loadInstructors();
+  } catch (err) {
+    alert(err.message);
   }
 }
 

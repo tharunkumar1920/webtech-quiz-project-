@@ -979,6 +979,132 @@ async function exportResultsCSV(req, res) {
   }
 }
 
+// -------------------------------------------------------------
+// INSTRUCTOR & STAFF MANAGEMENT
+// -------------------------------------------------------------
+
+/**
+ * Get all administrators and instructors
+ * GET /api/admin/instructors
+ */
+async function getAllInstructors(req, res) {
+  try {
+    const instructors = await query(`
+      SELECT id, username, name, role, created_at
+      FROM Admins
+      ORDER BY id ASC
+    `);
+
+    return res.json({
+      success: true,
+      instructors
+    });
+  } catch (error) {
+    console.error('Error in getAllInstructors:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch instructors' });
+  }
+}
+
+/**
+ * Create a new administrator or instructor
+ * POST /api/admin/instructors
+ * Body: { name, username, password, role }
+ */
+async function createInstructor(req, res) {
+  try {
+    const { name, username, password, role } = req.body;
+
+    if (!name || !username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Full name, username, and password are required'
+      });
+    }
+
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanName = name.trim();
+    const assignedRole = (role === 'admin' || role === 'superadmin') ? 'admin' : 'instructor';
+
+    const existing = await get(
+      `SELECT id FROM Admins WHERE LOWER(username) = LOWER(?)`,
+      [cleanUsername]
+    );
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        error: 'An account with this username already exists.'
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const result = await run(
+      `INSERT INTO Admins (username, password_hash, name, role) VALUES (?, ?, ?, ?)`,
+      [cleanUsername, passwordHash, cleanName, assignedRole]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Instructor / Admin account created successfully',
+      instructor: {
+        id: result.id,
+        username: cleanUsername,
+        name: cleanName,
+        role: assignedRole
+      }
+    });
+  } catch (error) {
+    console.error('Error in createInstructor:', error);
+    return res.status(500).json({ success: false, error: 'Failed to create instructor' });
+  }
+}
+
+/**
+ * Delete an administrator or instructor
+ * DELETE /api/admin/instructors/:id
+ */
+async function deleteInstructor(req, res) {
+  try {
+    const targetId = parseInt(req.params.id, 10);
+
+    // Prevent deleting oneself
+    if (req.session.user && req.session.user.id === targetId) {
+      const errMsg = 'You cannot remove your own active administrator account.';
+      return res.status(400).json({
+        success: false,
+        error: errMsg,
+        message: errMsg
+      });
+    }
+
+    // Ensure at least one admin remains
+    const countRow = await get(`SELECT COUNT(*) AS total FROM Admins`);
+    if (countRow && parseInt(countRow.total, 10) <= 1) {
+      const errMsg = 'Cannot remove the last remaining administrator account.';
+      return res.status(400).json({
+        success: false,
+        error: errMsg,
+        message: errMsg
+      });
+    }
+
+    const existing = await get(`SELECT id FROM Admins WHERE id = ?`, [targetId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Instructor account not found' });
+    }
+
+    await run(`DELETE FROM Admins WHERE id = ?`, [targetId]);
+
+    return res.json({
+      success: true,
+      message: 'Instructor / Admin account removed successfully'
+    });
+  } catch (error) {
+    console.error('Error in deleteInstructor:', error);
+    return res.status(500).json({ success: false, error: 'Failed to remove instructor account' });
+  }
+}
+
 module.exports = {
   getAllStudents,
   createStudent,
@@ -995,5 +1121,8 @@ module.exports = {
   updateQuestion,
   deleteQuestion,
   getAllResults,
-  exportResultsCSV
+  exportResultsCSV,
+  getAllInstructors,
+  createInstructor,
+  deleteInstructor
 };

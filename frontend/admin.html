@@ -36,6 +36,7 @@
       <button class="tab-btn" id="tab-btn-exams" onclick="switchAdminTab('exams')">Quiz Management</button>
       <button class="tab-btn" id="tab-btn-questions" onclick="switchAdminTab('questions')">Question Bank</button>
       <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('results')">Learner Results & Analytics</button>
+      <button class="tab-btn" id="tab-btn-instructors" onclick="switchAdminTab('instructors')">Instructors & Staff</button>
     </div>
 
     <!-- Alert / Toast Container -->
@@ -254,6 +255,37 @@
             </thead>
             <tbody id="admin-results-tbody">
               <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading examination results...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: Instructors & Staff Management -->
+    <section id="tab-section-instructors" class="tab-content">
+      <div class="page-header">
+        <div>
+          <h2>Instructor & Staff Management</h2>
+          <p>Add and manage faculty credentials, instructor accounts, and administrative access</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddInstructorModal()">+ Add New Instructor / Admin</button>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden; background: #FFFFFF; box-shadow: var(--shadow-card); border-radius: var(--radius-md);">
+        <div class="table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">ID</th>
+                <th>Full Name</th>
+                <th>Username / Staff ID</th>
+                <th>System Role</th>
+                <th>Date Added</th>
+                <th style="text-align: right; width: 140px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="instructors-tbody">
+              <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading instructors list...</td></tr>
             </tbody>
           </table>
         </div>
@@ -539,6 +571,43 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeQuestionModal()">Cancel</button>
           <button type="submit" class="btn btn-primary" id="save-question-btn">+ Add Question</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add New Instructor / Admin -->
+  <div class="modal-backdrop" id="instructor-modal">
+    <div class="modal-window" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Instructor / Admin</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeAddInstructorModal()">&times;</button>
+      </div>
+      <form id="add-instructor-form" onsubmit="handleSaveInstructor(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="inst-form-name">Full Name *</label>
+            <input type="text" id="inst-form-name" class="form-input" placeholder="e.g. Prof. Tharun Kumar" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inst-form-username">Username / Staff ID *</label>
+            <input type="text" id="inst-form-username" class="form-input" placeholder="e.g. instructor_tharun" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inst-form-role">Access Role</label>
+            <select id="inst-form-role" class="form-select">
+              <option value="instructor">Course Instructor / Faculty</option>
+              <option value="admin">Lead Platform Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inst-form-password">Initial Password *</label>
+            <input type="password" id="inst-form-password" class="form-input" placeholder="Min 4 characters (e.g. admin123)" minlength="4" required autocomplete="new-password">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeAddInstructorModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="inst-form-submit-btn">Create Staff Account</button>
         </div>
       </form>
     </div>
