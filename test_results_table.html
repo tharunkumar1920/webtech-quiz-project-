@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Execution Results Table - White Theme</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wrapper {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 10px;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+    }
+    .btn-copy {
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-copy:hover {
+      background: #334155;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      text-transform: capitalize;
+    }
+    td {
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      color: #1e293b;
+      background-color: #ffffff;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .badge-pass {
+      display: inline-block;
+      background-color: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .total-row td {
+      background-color: #f1f5f9 !important;
+      font-weight: 700;
+      color: #0f172a;
+      border-top: 2px solid #0f172a;
+      border-bottom: 2px solid #0f172a;
+      font-size: 14px;
+    }
+    .badge-total {
+      display: inline-block;
+      background-color: #047857;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+    .instructions {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- VERSION 1: EXACT AS IN SCREENSHOT -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Version 1: Exact Technical Table (From Screenshot)</h2>
+        <button class="btn-copy" onclick="copyTable('table-exact')">Copy Table for Word / PPT</button>
+      </div>
+      <table id="table-exact">
+        <thead>
+          <tr>
+            <th style="width: 28%;">Test Suite</th>
+            <th style="width: 44%;">Focus Area</th>
+            <th class="text-center" style="width: 13%;">Tests Executed</th>
+            <th class="text-center" style="width: 15%;">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. System Health & Routing</strong></td>
+            <td>Server heartbeat, HTML static routes</td>
+            <td class="text-center">2</td>
+            <td class="text-center"><span class="badge-pass">Passed (2/2)</span></td>
+          </tr>
+          <tr>
+            <td><strong>2. Authentication & Profiles</strong></td>
+            <td>Student login, Email login, Self-registration</td>
+            <td class="text-center">6</td>
+            <td class="text-center"><span class="badge-pass">Passed (6/6)</span></td>
+          </tr>
+          <tr>
+            <td><strong>3. Live Quiz Engine</strong></td>
+            <td>Passcode verification, auto-saving, crash recovery</td>
+            <td class="text-center">8</td>
+            <td class="text-center"><span class="badge-pass">Passed (8/8)</span></td>
+          </tr>
+          <tr>
+            <td><strong>4. Comparative Analytics</strong></td>
+            <td>Server-side auto-grading, Chart.js telemetry, history</td>
+            <td class="text-center">2</td>
+            <td class="text-center"><span class="badge-pass">Passed (2/2)</span></td>
+          </tr>
+          <tr>
+            <td><strong>5. Simultaneous Studio</strong></td>
+            <td>Atomic Quiz & Question Paper creation, question CRUD</td>
+            <td class="text-center">8</td>
+            <td class="text-center"><span class="badge-pass">Passed (8/8)</span></td>
+          </tr>
+          <tr>
+            <td><strong>6. Staff Governance</strong></td>
+            <td>Instructor provisioning, login, staff deletion guard</td>
+            <td class="text-center">6</td>
+            <td class="text-center"><span class="badge-pass">Passed (6/6)</span></td>
+          </tr>
+          <tr>
+            <td><strong>7. Security & RBAC Guards</strong></td>
+            <td>Cross-student isolation (IDOR), Admin route protection</td>
+            <td class="text-center">9</td>
+            <td class="text-center"><span class="badge-pass">Passed (9/9)</span></td>
+          </tr>
+          <tr class="total-row">
+            <td>Total Test Execution</td>
+            <td>Comprehensive Platform Verification</td>
+            <td class="text-center">41</td>
+            <td class="text-center"><span class="badge-total">41 / 41 PASSED (100%)</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="instructions">Tip: Click "Copy Table", then paste (Ctrl+V) directly into Microsoft Word, Google Docs, or PowerPoint.</p>
+    </div>
+
+    <!-- VERSION 2: SIMPLIFIED EASY-TO-UNDERSTAND TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Version 2: Simplified Plain English Table (For Presentation)</h2>
+        <button class="btn-copy" onclick="copyTable('table-simple')">Copy Table for Word / PPT</button>
+      </div>
+      <table id="table-simple">
+        <thead>
+          <tr>
+            <th style="width: 28%;">Module</th>
+            <th style="width: 44%;">Features Tested</th>
+            <th class="text-center" style="width: 13%;">Tests</th>
+            <th class="text-center" style="width: 15%;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Server & Pages</strong></td>
+            <td>Website loading and server responsiveness</td>
+            <td class="text-center">2</td>
+            <td class="text-center"><span class="badge-pass">Passed (2/2)</span></td>
+          </tr>
+          <tr>
+            <td><strong>2. Login & Registration</strong></td>
+            <td>Student & teacher accounts, secure password check</td>
+            <td class="text-center">6</td>
+            <td class="text-center"><span class="badge-pass">Passed (6/6)</span></td>
+          </tr>
+          <tr>
+            <td><strong>3. Quiz Taking Engine</strong></td>
+            <td>Live timer, answer auto-saving, anti-reload recovery</td>
+            <td class="text-center">8</td>
+            <td class="text-center"><span class="badge-pass">Passed (8/8)</span></td>
+          </tr>
+          <tr>
+            <td><strong>4. Results & Analytics</strong></td>
+            <td>Automatic score calculation and performance charts</td>
+            <td class="text-center">2</td>
+            <td class="text-center"><span class="badge-pass">Passed (2/2)</span></td>
+          </tr>
+          <tr>
+            <td><strong>5. Teacher Quiz Studio</strong></td>
+            <td>Creating quizzes, question banks, and answer keys</td>
+            <td class="text-center">8</td>
+            <td class="text-center"><span class="badge-pass">Passed (8/8)</span></td>
+          </tr>
+          <tr>
+            <td><strong>6. Staff Management</strong></td>
+            <td>Adding instructors, permissions, and account protection</td>
+            <td class="text-center">6</td>
+            <td class="text-center"><span class="badge-pass">Passed (6/6)</span></td>
+          </tr>
+          <tr>
+            <td><strong>7. Security & Cheating Guards</strong></td>
+            <td>Data privacy, session lock, student isolation</td>
+            <td class="text-center">9</td>
+            <td class="text-center"><span class="badge-pass">Passed (9/9)</span></td>
+          </tr>
+          <tr class="total-row">
+            <td>Total Tests</td>
+            <td>Complete End-to-End System Testing</td>
+            <td class="text-center">41</td>
+            <td class="text-center"><span class="badge-total">41 / 41 Passed (100%)</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="instructions">Tip: Click "Copy Table", then paste (Ctrl+V) directly into Microsoft Word, Google Docs, or PowerPoint.</p>
+    </div>
+
+  </div>
+
+  <script>
+    function copyTable(id) {
+      const el = document.getElementById(id);
+      const range = document.createRange();
+      range.selectNode(el);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      try {
+        document.execCommand('copy');
+        alert('Table copied to clipboard! You can now paste it into Word, PowerPoint, or Docs.');
+      } catch (err) {
+        alert('Please select the table manually and press Ctrl+C');
+      }
+      window.getSelection().removeAllRanges();
+    }
+  </script>
+</body>
+</html>

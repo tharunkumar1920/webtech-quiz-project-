@@ -1,9 +1,11 @@
+require('dotenv').config();
 // Script to inspect and display all database tables and records in terminal
-const { query } = require('./db');
+const { query, isPostgres } = require('./db');
 
 async function showDatabase() {
+  const dbName = isPostgres ? 'Supabase Cloud PostgreSQL' : 'Local SQLite (exam_portal.sqlite)';
   console.log('\n================================================================================');
-  console.log('              ✦ EDUQUEST DATABASE INSPECTOR (exam_portal.sqlite) ✦              ');
+  console.log(`              ✦ EDUQUEST DATABASE INSPECTOR (${dbName}) ✦              `);
   console.log('================================================================================\n');
 
   try {
@@ -25,10 +27,10 @@ async function showDatabase() {
     // 4. Questions Count per Exam
     console.log('\n--- [4] Questions Summary per Exam (`Questions`) ---');
     const questionsSummary = await query(`
-      SELECT e.id AS exam_id, e.exam_code, e.title, COUNT(q.id) AS total_questions_in_db, SUM(q.marks) AS total_marks
+      SELECT e.id AS exam_id, e.exam_code, e.title, COUNT(q.id) AS total_questions_in_db, COALESCE(SUM(q.marks), 0) AS total_marks
       FROM Exams e
       LEFT JOIN Questions q ON q.exam_id = e.id
-      GROUP BY e.id
+      GROUP BY e.id, e.exam_code, e.title
     `);
     console.table(questionsSummary);
 
@@ -53,7 +55,7 @@ async function showDatabase() {
     }
 
     console.log('\n================================================================================');
-    console.log('Database inspection complete. Active SQLite file: backend/database/exam_portal.sqlite');
+    console.log(`Database inspection complete. Active Database: ${dbName}`);
     console.log('================================================================================\n');
     process.exit(0);
   } catch (err) {

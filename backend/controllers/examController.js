@@ -283,7 +283,7 @@ async function startExam(req, res) {
       `SELECT COUNT(*) AS cnt FROM Exam_Attempts WHERE exam_id = ? AND student_id = ? AND id < ?`,
       [exam_id, studentId, attempt.id]
     );
-    const attemptNumber = (prevAttempts?.cnt || 0) + 1;
+    const attemptNumber = (parseInt(prevAttempts?.cnt, 10) || 0) + 1;
 
     // Calculate remaining seconds
     const startTimeMs = parseDbDate(attempt.start_time);

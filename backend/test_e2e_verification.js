@@ -83,8 +83,10 @@ async function runTests() {
   // Start HTTP Server on named pipe
   await new Promise((resolve) => {
     server = http.createServer(app);
-    server.listen(pipeName, () => {
+    server.listen(pipeName, async () => {
       console.log(`[SETUP] In-process test server listening on pipe ${pipeName}`);
+      const { run } = require('./database/db');
+      await run(`DELETE FROM Exam_Attempts WHERE exam_id IN (SELECT id FROM Exams WHERE exam_code = 'WTDB2026')`);
       resolve();
     });
   });

@@ -11,7 +11,12 @@ let pool = null;
 let sqliteDb = null;
 
 if (isPostgres) {
-  const { Pool } = require('pg');
+  const { Pool, types } = require('pg');
+  // Parse PostgreSQL TIMESTAMP (OID 1114) and TIMESTAMPTZ (OID 1184) as UTC
+  types.setTypeParser(1114, str => new Date(str.replace(' ', 'T') + 'Z'));
+  types.setTypeParser(1184, str => new Date(str));
+  // Parse PostgreSQL BIGINT (OID 20) as JavaScript integer (COUNT(*) returns int8)
+  types.setTypeParser(20, val => parseInt(val, 10));
   console.log('[DB] Connecting to Cloud PostgreSQL database...');
 
   const connectionString = process.env.DATABASE_URL;
@@ -175,20 +180,22 @@ async function exec(sql) {
 /**
  * Initialize schema if tables don't exist
  */
-async function initSchema() {
+async function initSchema(autoSeed = true) {
   if (isPostgres) {
     const schemaPgPath = path.join(__dirname, 'schema_pg.sql');
     const schemaSql = fs.readFileSync(schemaPgPath, 'utf8');
     await pool.query(schemaSql);
     console.log('[DB] PostgreSQL schema verified/created successfully.');
 
-    // Auto-seed if Admins table is empty
-    const checkAdmin = await pool.query('SELECT COUNT(*) AS cnt FROM Admins');
-    if (parseInt(checkAdmin.rows[0].cnt, 10) === 0) {
-      console.log('[DB] Fresh database detected. Auto-seeding initial data...');
-      const seedScript = require('./seed');
-      if (typeof seedScript.seedDatabase === 'function') {
-        await seedScript.seedDatabase();
+    if (autoSeed) {
+      // Auto-seed if Admins table is empty
+      const checkAdmin = await pool.query('SELECT COUNT(*) AS cnt FROM Admins');
+      if (parseInt(checkAdmin.rows[0].cnt, 10) === 0) {
+        console.log('[DB] Fresh database detected. Auto-seeding initial data...');
+        const seedScript = require('./seed');
+        if (typeof seedScript.seedDatabase === 'function') {
+          await seedScript.seedDatabase();
+        }
       }
     }
     return;

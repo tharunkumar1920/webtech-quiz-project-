@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
 
@@ -13,7 +14,7 @@ const { db, run, get, query, exec, initSchema } = require('./db');
 
 async function seedDatabase() {
   console.log('--- Initializing Database Schema ---');
-  await initSchema();
+  await initSchema(false);
   console.log('Schema initialized successfully.');
 
   // 1. Seed Admins & Instructors
