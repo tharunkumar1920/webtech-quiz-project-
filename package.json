@@ -9,6 +9,7 @@
     "open": "node start.js",
     "seed": "node backend/database/seed.js",
     "db:show": "node backend/database/show_database.js",
+    "db:test-cloud": "node backend/database/test_cloud_connection.js",
     "test": "node backend/test_e2e_verification.js"
   },
   "dependencies": {
